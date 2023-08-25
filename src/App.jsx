@@ -35,7 +35,12 @@ function App({ xIsNext, squares, onPlay }) {
   if (winner) {
     status = `The winner: ${winner}`;
   } else {
-    status = `Next Player: ${xIsNext ? "X" : "O"}`;
+    console.log(squares.includes(null));
+    if (squares.includes(null)) {
+      status = `Next Player: ${xIsNext ? "X" : "O"}`;
+    } else {
+      status = `Game over`;
+    }
   }
   return (
     <>
@@ -45,12 +50,12 @@ function App({ xIsNext, squares, onPlay }) {
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
         <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
       </div>
-      <div className="board-rol">
+      <div className="board-row">
         <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
         <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
         <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
       </div>
-      <div className="board-rol">
+      <div className="board-row">
         <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
         <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
         <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
@@ -61,19 +66,41 @@ function App({ xIsNext, squares, onPlay }) {
 // the game function
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
-  const [xIsNext, setXIsNext] = useState(true);
-  const currentSquares = history[history.length - 1];
+  const [currentMove, setCurrentMove] = useState(0);
+  // const [xIsNext, setXIsNext] = useState(true);
+  const currentSquares = history[currentMove];
+  const xIsNext = currentMove % 2 === 0;
   function handlePlay(nextSquares) {
-    setHistory([...history, nextSquares]);
-    setXIsNext(!xIsNext);
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
   }
+  // function to jump to next move
+  function jumpTo(nextMove) {
+    // TODO:
+    setCurrentMove(nextMove);
+  }
+  const moves = history.map((squares, move) => {
+    let description;
+    if (move > 0) {
+      description = "Jump to move #" + move;
+    } else {
+      description = "Jump to game Start";
+    }
+    console.log(squares);
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
   return (
     <div className="game">
       <div className="game-board">
         <App xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <ol>{}</ol>
+        <ol>{moves}</ol>
       </div>
     </div>
   );
